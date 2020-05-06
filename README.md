@@ -1,0 +1,1 @@
+docker run --name ptech-pg -e POSTGRES_PASSWORD=mysecretpassword -d postgres:alpine -p 5432:5432
