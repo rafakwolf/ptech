@@ -11,4 +11,10 @@ export class User extends BaseEntity implements IEntity {
 
     @Column()
     password!: string;
+
+    @Column({nullable: true})
+    resetPassToken?: string;
+
+    @Column({nullable: true})
+    resetPassTokenExpires?: number;    
 }

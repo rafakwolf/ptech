@@ -10,6 +10,6 @@ export class Item extends BaseEntity implements IEntity {
     @Column()
     name!: string;
 
-    @OneToMany(type => Group, group => group.item)
-    groups!: Array<Group>;
+    @OneToMany(type => Group, group => group.item, {eager: true})
+    groups!: Group[];
 }

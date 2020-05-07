@@ -7,7 +7,7 @@ export class GroupController {
         const {id} = req.params;
 
         if (!id) {
-            return res.status(400).json({message: 'Id should be informed.'});
+            return res.status(400).json({message: 'Id must be informed.'});
         }
 
         const group = await Group.findOne(id);
@@ -26,7 +26,7 @@ export class GroupController {
 
     public async create(req: Request, res: Response) {
         let schema = yup.object().shape ({
-            name: yup.string().required('Group name should be informed.')
+            name: yup.string().required('Group name must be informed.')
         });
         
         const {name} = req.body;
@@ -34,20 +34,24 @@ export class GroupController {
             return res.status(400).json(err.errors);
         });
 
-        const created = await Group.create({name}).save();
-
-        res.status(201).json(created);
+        try {
+            const created = await Group.create({name}).save();
+            res.status(201).json(created);           
+        } catch (error) {
+            res.status(500).json(error.message);    
+            throw error;            
+        }
     }
 
     public async update(req: Request, res: Response) {
         const {id} = req.params;
 
         if (!id) {
-            return res.status(400).json({message: 'Id should be informed.'});
+            return res.status(400).json({message: 'Id must be informed.'});
         }
 
         let schema = yup.object().shape ({
-            name: yup.string().required('Group name should be informed.')
+            name: yup.string().required('Group name must be informed.')
         });
 
         const {name} = req.body;
@@ -55,24 +59,39 @@ export class GroupController {
             return res.status(400).json(err.errors);
         });
 
-        const updated = await Group.update(id, {name});
+        const group = await Group.findOne(id);
 
-        res.status(201).json(updated);        
+        if (!group) {
+            return res.status(404);
+        }
+
+        try {
+            await Group.update(id, {name});
+            const updated = await Group.findOne(id);
+            res.status(201).json(updated);    
+        } catch (error) {
+            res.status(500).json(error.message);    
+            throw error;            
+        }                
     }
 
     public async remove(req: Request, res: Response) {
         const {id} = req.params;
 
         if (!id) {
-            return res.status(400).json({message: 'Id should be informed.'});
+            return res.status(400).json({message: 'Id must be informed.'});
         }
 
         const group = await Group.findOne(id);
-
         if (!group) {
             return res.status(404);
         }
-        
-        await Group.remove(group);
+
+        try {
+            await Group.remove(group);
+        } catch (error) {
+            res.status(500).json(error.message);    
+            throw error;            
+        }     
     }
 }

@@ -1,3 +1,4 @@
+require('dotenv').config();
 import 'reflect-metadata';
 import app from './app';
 const PORT: number = parseInt(process.env.PORT as string, 10) || 3000;
