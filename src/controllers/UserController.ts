@@ -5,9 +5,11 @@ import { passwordMatches, hashedPassword } from './password';
 import { generateToken } from './token';
 import crypto from 'crypto';
 import addMinutes from 'date-fns/addMinutes';
-
+import { EmailService } from '../services/EmailService';
 
 export class UserController {
+    public emailService: EmailService = new EmailService();
+
     public async login(req: Request, res: Response) {
         try {
             let schema = yup.object().shape ({
@@ -16,14 +18,15 @@ export class UserController {
             });
             
             const {email, password} = req.body;
-            await schema.validate({ email, password }).catch((err) => {
-                return res.status(400).json(err.errors);
-            });
-
+            try {
+                await schema.validate({ email, password }, {abortEarly: false});
+            } catch (error) {
+                return res.status(400).json(error.errors);
+            }
             const user = await User.findOne({email});
 
             if (!user) {
-                return res.status(401);
+                return res.status(401).json({});
             }
 
             if (user && passwordMatches(password, user.password)) {
@@ -38,7 +41,9 @@ export class UserController {
                 res.status(500).send('Invalid credentials');
             }
         } catch (error) {
-            res.status(500).send('Login error');
+            if (!res.headersSent) {
+                res.status(500).send('Login error');
+            }            
             throw error;
         }
     }
@@ -51,9 +56,11 @@ export class UserController {
         });
 
         const {email, password, confirmation} = req.body;
-        await schema.validate({ email, password, confirmation }).catch((err) => {
-            return res.status(400).json(err.errors);
-        });
+        try {
+            await schema.validate({ email, password, confirmation }, {abortEarly: false});    
+        } catch (error) {
+            return res.status(400).json(error.errors);
+        }
 
         if (password !== confirmation) {
             return res.status(400).json({message: 'Password and Confirmation must be the same.'});  
@@ -75,21 +82,24 @@ export class UserController {
           result.password = '';
           res.status(200).json(result);
         } catch (error) {
-          res.status(500).json(error);
+            if (!res.headersSent) {
+                res.status(500).json(error);
+            }
           throw error;
         }
     }
 
-    public async resetPassword(req: Request, res: Response) {
+    public resetPassword = async (req: Request, res: Response) => {
         let schema = yup.object().shape ({
             email: yup.string().required('Email must be informed.')
         });
         
         const {email} = req.body;
-        await schema.validate({ email }).catch((err) => {
-            return res.status(400).json(err.errors);
-        });
-
+        try {
+            await schema.validate({ email }, {abortEarly: false});    
+        } catch (error) {
+            return res.status(400).json(error.errors);
+        }        
         const user = await User.findOne({email});
 
         if (!user) {
@@ -100,7 +110,7 @@ export class UserController {
             user.resetPassToken = crypto.randomBytes(32).toString('hex');
             user.resetPassTokenExpires = addMinutes(Date.now(), 30).getMinutes();
             await User.update(user.id, user);
-            // *** send and email here *** /
+            this.emailService.sendEmail(user);
             res.status(200).json({message: 'Check your email.'});
         } catch (error) {
           res.status(500).json(error);
@@ -116,9 +126,11 @@ export class UserController {
         });
         
         const {token, newPassword, confirmation} = req.body;
-        await schema.validate({ token, newPassword, confirmation }).catch((err) => {
-            return res.status(400).json(err.errors);
-        });
+        try {
+            await schema.validate({ token, newPassword, confirmation }, {abortEarly: false});    
+        } catch (error) {
+            return res.status(400).json(error.errors);
+        }
 
         if (newPassword !== confirmation) {
             return res.status(400).json({message: 'Password and Confirmation must be the same.'});  

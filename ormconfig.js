@@ -4,7 +4,7 @@ module.exports = {
     host: 'localhost',
     port: 5432,
     username: 'postgres',
-    password: 'supersecurepass',
+    password: 'fred',
     database: 'ptech',
     logging: ['error'],
     synchronize: true,

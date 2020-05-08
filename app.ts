@@ -11,14 +11,14 @@ class App {
   public routes: Routes = new Routes();
 
   constructor() {
-    this.app = express();
-    createConnection().then(() => {
-      this.config();
-      this.routes.registerRoutes(this.app);
-      this.swaggerDefs();      
-    }).catch(error => {
-      console.error(error);
-    });
+    this.app = express();    
+    this.config();
+    this.routes.registerRoutes(this.app);
+    this.swaggerDefs();
+
+    this.app.locals['routes'] = this.routes;
+
+    createConnection();
   }
 
   private config(): void {
