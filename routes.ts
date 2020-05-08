@@ -82,6 +82,6 @@ export class Routes {
     app.route("/groups/:id").get([authMiddleware(), awaitFunction(this.groups.getById)]);
     app.route("/groups").post([authMiddleware(), awaitFunction(this.groups.create)]);
     app.route("/groups/:id").put([authMiddleware(), awaitFunction(this.groups.update)]);
-    app.route("/groups").delete([authMiddleware(), awaitFunction(this.groups.remove)]);
+    app.route("/groups/:id").delete([authMiddleware(), awaitFunction(this.groups.remove)]);
   }  
 }

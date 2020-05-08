@@ -14,7 +14,7 @@ export class ItemController {
         const item = await Item.findOne(id); 
 
         if (!item) {
-            return res.status(404);
+            return res.status(404).json({});
         }
 
         res.json(item);        
@@ -30,10 +30,12 @@ export class ItemController {
             name: yup.string().required('Item name must be informed.')
         });
         
-        const {name, groups} = req.body;
-        await schema.validate({ name }).catch((err) => {
-            return res.status(400).json(err.errors);
-        });
+        const {name, groups = []} = req.body;
+        try {
+            await schema.validate({ name }, {abortEarly: false});
+        } catch (error) {
+            return res.status(400).json(error.errors);
+        }
 
         try {
             const created = await Item.create({name, groups}).save();
@@ -77,15 +79,17 @@ export class ItemController {
             name: yup.string().required('Item name must be informed.')
         });
 
-        const {name, groups} = req.body;
-        await schema.validate({ name }).catch((err) => {
-            return res.status(400).json(err.errors);
-        });
+        const {name, groups = []} = req.body;
+        try {
+            await schema.validate({ name }, {abortEarly: false});
+        } catch (error) {
+            return res.status(400).json(error.errors);
+        }
 
         let item = await Item.findOne(id);
 
         if (!item) {
-            return res.status(404);
+            return res.status(404).json({});
         }        
 
         try {
@@ -122,11 +126,12 @@ export class ItemController {
         const item = await Item.findOne(id);
 
         if (!item) {
-            return res.status(404);
+            return res.status(404).json({});
         }
         
         try {
-            await Item.remove(item);        
+            await Item.remove(item);
+            res.status(204).json({});
         } catch(error) {
             res.status(500).json(error.message);    
             throw error;

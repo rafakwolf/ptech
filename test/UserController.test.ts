@@ -5,13 +5,20 @@ import { testDbConnection } from './dbConntection';
 import chai from 'chai';
 import { User } from '../src/models/User';
 import sinon from 'sinon';
+import { Connection } from 'typeorm';
 
 const assert = chai.assert;
 
 describe('UserController', async () => {
+    let conn: Connection;
+
     before(async () => {
-        await testDbConnection();
+        conn = await testDbConnection();
         User.delete({});
+    });
+
+    after(() => {
+        conn?.close();
     });
 
     it('should register a user', async () => {

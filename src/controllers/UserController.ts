@@ -103,7 +103,7 @@ export class UserController {
         const user = await User.findOne({email});
 
         if (!user) {
-            return res.status(404);
+            return res.status(404).json({});
         }
 
         try {
@@ -139,7 +139,7 @@ export class UserController {
         const user = await User.findOne({resetPassToken: token});
 
         if (!user) {
-            return res.status(404);
+            return res.status(404).json({});
         }
 
         if (token !== user.resetPassToken) {

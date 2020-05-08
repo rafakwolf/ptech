@@ -8,7 +8,7 @@ export async function testDbConnection(drop: boolean = false) {
         host: 'localhost',
         port: 5432,
         username: 'postgres',
-        password: 'supersecurepass',
+        password: 'fred',
         database: 'ptech',
         logging: ['error'],
         entities: [path.join(__dirname, '../src/models/*.*')],

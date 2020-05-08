@@ -13,7 +13,7 @@ export class GroupController {
         const group = await Group.findOne(id);
 
         if (!group) {
-            return res.status(404);
+            return res.status(404).json({});
         }
 
         res.json(group);
@@ -30,9 +30,11 @@ export class GroupController {
         });
         
         const {name} = req.body;
-        await schema.validate({ name }).catch((err) => {
-            return res.status(400).json(err.errors);
-        });
+        try {
+            await schema.validate({ name }, {abortEarly: false});
+        } catch (error) {
+            return res.status(400).json(error.errors);
+        }
 
         try {
             const created = await Group.create({name}).save();
@@ -55,20 +57,22 @@ export class GroupController {
         });
 
         const {name} = req.body;
-        await schema.validate({ name }).catch((err) => {
-            return res.status(400).json(err.errors);
-        });
+        try {
+            await schema.validate({ name }, {abortEarly: false});
+        } catch (error) {
+            return res.status(400).json(error.errors);
+        }
 
         const group = await Group.findOne(id);
 
         if (!group) {
-            return res.status(404);
+            return res.status(404).json({});
         }
 
         try {
             await Group.update(id, {name});
             const updated = await Group.findOne(id);
-            res.status(201).json(updated);    
+            res.status(200).json(updated);    
         } catch (error) {
             res.status(500).json(error.message);    
             throw error;            
@@ -83,13 +87,16 @@ export class GroupController {
         }
 
         const group = await Group.findOne(id);
+
         if (!group) {
-            return res.status(404);
+            return res.status(404).json({});
         }
 
         try {
             await Group.remove(group);
+            res.status(204).json({});
         } catch (error) {
+            console.log(error);
             res.status(500).json(error.message);    
             throw error;            
         }     
